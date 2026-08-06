@@ -1,0 +1,10 @@
+{
+  "name": "kotobase-block-codec",
+  "private": true,
+  "scripts": {
+    "test:cljs": "nbb --classpath src:test run-tests.cljs"
+  },
+  "dependencies": {
+    "@noble/hashes": "2.0.1"
+  }
+}

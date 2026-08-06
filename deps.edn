@@ -6,7 +6,13 @@
  ;; way that changes them.
  :deps {io.github.kotoba-lang/org-ietf-deflate
         {:git/url "https://github.com/kotoba-lang/org-ietf-deflate.git"
-         :git/sha "e7558036709b673e22673fc2bbd12f3a24144e98"}}
+         :git/sha "e7558036709b673e22673fc2bbd12f3a24144e98"}
+        ;; `kotobase.blockcodec.node` only: the DAG-CBOR envelope that keeps a
+        ;; compressed block a valid block, and its link-visibility check.
+        ;; `kotobase.blockcodec.core` stays dependency-free of it.
+        io.github.kotoba-lang/io-ipld
+        {:git/url "https://github.com/kotoba-lang/io-ipld.git"
+         :git/sha "5d8de535ebc2c10bb90a671ea6019783ecbd2137"}}
  :aliases
  {:test {:extra-paths ["test"]
          :extra-deps {io.github.cognitect-labs/test-runner

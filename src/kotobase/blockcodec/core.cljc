@@ -112,6 +112,16 @@
                (mapv #(bit-and % 0xff) (array-seq x))])
     :else (mapv #(bit-and (long %) 0xff) x)))
 
+(defn byte-length
+  "How many bytes, without allocating a copy. `count` is not portable here:
+  it works on a JVM `byte[]` and throws `ICounted` on a `js/Uint8Array`."
+  [x]
+  (cond
+    (vector? x) (count x)
+    #?@(:clj [(bytes? x) (alength ^bytes x)]
+        :cljs [(or (instance? js/Uint8Array x) (instance? js/Int8Array x)) (.-byteLength x)])
+    :else (count x)))
+
 (defn platform-bytes
   "Vector of unsigned bytes → the platform's native byte container: `byte[]`
   on the JVM (values above 127 wrap to negative, as `byte[]` requires),

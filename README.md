@@ -92,12 +92,48 @@ CPU is the reason the level is 1 and not 6: on a 61 KB payload, level 6 buys
 and that time is spent on a Cloudflare Worker's write path. Warmed, level 1
 runs about 270 KB/s under nbb.
 
+## `kotobase.blockcodec.node` — for blocks that are not encrypted
+
+The frame above rides inside a byte string that was already opaque (the tx
+block's ciphertext). Merkle-LSM run blocks have no such string: they are
+`ipld/encode`d and stored as-is. Compressing them needs two more things.
+
+**The block must stay valid DAG-CBOR**, because `ipld/cid` is
+`cidv1-dag-cbor` and a zlib stream under that CID is a CID lying about its own
+codec. So the compressed bytes go inside a node — `{"kbc" 1 "z" <framed>}` —
+with a version int and two keys so `decode-node` can tell an envelope from
+application data by looking at it.
+
+**Links must stay visible to a walker that does not decompress.**
+`ipld/links` is "the one generic walk hydrate loops and GC need", and a link
+inside a compressed payload is a child GC is entitled to delete while its
+parent still points at it. There is no clever fix, so the rule is a
+precondition: **only link-free nodes are ever compressed.** `links-preserved?`
+states it as a predicate and the suite asserts it both ways. Merkle-LSM
+manifests and range directories are nearly all links and keep their exact
+current bytes; run blocks are keys and values and do not.
+
+```clojure
+(bcn/encode-node node)   ; -> bytes, compressed iff link-free AND smaller
+(bcn/decode-node bytes)  ; -> node, identity on everything written before this
+```
+
+Measured on Merkle-LSM run blocks (`merkle-lsm.core/canonical-key` shapes):
+**0.080–0.108** with plaintext values, **0.41** even when every value is
+ciphertext — the canonical keys are half the block and they compress ~12x.
+
+`decode-node` being the identity on legacy blocks is load-bearing here in a
+way it was not for the tx block: the Merkle-LSM producer and its readers are
+separate artifacts on separate deploy cycles, so **every reader has to be
+deployed before any writer emits an envelope**.
+
 ## Tests
 
 ```sh
 clojure -M:test
 clojure -M:lint
-nbb --classpath "src:test:../org-ietf-deflate/src" run-tests.cljs
+npm install   # @noble/hashes, for io-ipld's CID hashing under nbb
+nbb --classpath "src:test:../org-ietf-deflate/src:../io-ipld/src:../io-multiformats/src:../org-ietf-cbor/src" run-tests.cljs
 ```
 
 `golden_test` pins the literal framed bytes and runs on both runtimes. It is
@@ -113,5 +149,11 @@ self-consistently test the wrong payload. And it caught a real defect in
 order and so emitted *different, equally valid* streams on the two runtimes
 (fixed upstream in `e755803`; that repo now has its own cross-runtime pin).
 
-Both are invisible to a round-trip test, which is the whole argument for
-pinning bytes.
+It has since earned it twice more, both times on the ClojureScript side:
+`(count uint8-array)` throws `ICounted` where `(count byte-array)` works, and
+`ipld.link/link-cid` read a deftype field directly — which returns nil under
+nbb, so no node containing a link could be encoded at all, and two links to
+one CID compared unequal while hashing equal (fixed upstream in `5d8de53`).
+
+All four are invisible to a round-trip test on a single runtime, which is the
+whole argument for pinning bytes and running both.
