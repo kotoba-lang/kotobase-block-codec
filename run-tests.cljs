@@ -1,0 +1,21 @@
+(ns run-tests
+  "The same `.cljc` suite on ClojureScript. `org-ietf-deflate` is not resolved
+   by nbb.edn, so point the classpath at a sibling checkout — this is the
+   multi-dir `--classpath` pattern the workspace already uses:
+
+     nbb --classpath \"src:test:../org-ietf-deflate/src\" run-tests.cljs
+
+   Running it on a second runtime is the point, not a formality: the frame's
+   bytes go inside a CID, so `frame` producing something different here than
+   on the JVM would fork the block graph between a Worker and a JVM writer."
+  (:require [cljs.test :as t]
+            [kotobase.blockcodec.core-test]
+            [kotobase.blockcodec.golden-test]))
+
+(defmethod t/report [:cljs.test/default :end-run-tests] [m]
+  (println (str "\nnbb: " (:test m) " tests, " (:pass m) " passed, "
+                (:fail m) " failed, " (:error m) " errors"))
+  (when-not (t/successful? m)
+    (set! (.-exitCode js/process) 1)))
+
+(t/run-tests 'kotobase.blockcodec.core-test 'kotobase.blockcodec.golden-test)
