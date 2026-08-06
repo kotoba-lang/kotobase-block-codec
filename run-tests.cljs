@@ -10,7 +10,8 @@
    on the JVM would fork the block graph between a Worker and a JVM writer."
   (:require [cljs.test :as t]
             [kotobase.blockcodec.core-test]
-            [kotobase.blockcodec.golden-test]))
+            [kotobase.blockcodec.golden-test]
+            [kotobase.blockcodec.node-test]))
 
 (defmethod t/report [:cljs.test/default :end-run-tests] [m]
   (println (str "\nnbb: " (:test m) " tests, " (:pass m) " passed, "
@@ -18,4 +19,5 @@
   (when-not (t/successful? m)
     (set! (.-exitCode js/process) 1)))
 
-(t/run-tests 'kotobase.blockcodec.core-test 'kotobase.blockcodec.golden-test)
+(t/run-tests 'kotobase.blockcodec.core-test 'kotobase.blockcodec.golden-test
+             'kotobase.blockcodec.node-test)
