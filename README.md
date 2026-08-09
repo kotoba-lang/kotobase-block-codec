@@ -136,6 +136,29 @@ npm install   # @noble/hashes, for io-ipld's CID hashing under nbb
 nbb --classpath "src:test:../org-ietf-deflate/src:../io-ipld/src:../io-multiformats/src:../org-ietf-cbor/src" run-tests.cljs
 ```
 
+## StateSMix / Mamba research adapter
+
+`kotobase.blockcodec.statemix` defines an opt-in JVM host contract for the
+upstream StateSMix `SSM6` executable.  Its model identity includes the
+Mamba-style SSM dimensions, tokenizer, arithmetic scale, and fixed seed.  The
+benchmark function measures `duration_ms`, ratio, and bits/byte, then performs
+an independent decode and byte comparison before setting
+`:roundtrip-verified? true`.
+
+OpenMP is forcibly fixed to one thread for both processes. StateSMix retrains
+while decoding; parallel floating-point reduction order can otherwise make the
+reconstructed probability sequence diverge. `benchmark!` first snapshots the
+input, writes to a private candidate, runs an independent decoder, compares
+every byte, and only then atomically publishes the compressed stream. A failed
+decode or mismatch leaves no new output file.
+
+It is deliberately **not** another tag in `core/frame`: upstream requires an
+external tokenizer and x86-64 AVX2/FMA/OpenMP, performs floating-point online
+training, and is not available in the Worker runtime.  Putting it into the CID
+path would violate this repository's cross-runtime deterministic-byte
+invariant.  It is a cold-path experiment until a portable format pin, golden
+vectors, resource limits, and JVM/Worker parity exist.
+
 `golden_test` pins the literal framed bytes and runs on both runtimes. It is
 supposed to be annoying to change: a diff there says every `zlib-1` block from
 now on has a different address than one framed before, and the way to say that

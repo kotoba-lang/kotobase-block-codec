@@ -1,0 +1,51 @@
+(ns kotobase.blockcodec.statemix-test
+  (:require [clojure.test :refer [deftest is]]
+            [kotobase.blockcodec.statemix :as statemix]))
+
+(def repo-dir (System/getProperty "user.dir"))
+
+(deftest model-contract-is-explicit
+  (is (= :mamba-style-ssm (:predictor statemix/model)))
+  (is (= 0 (:seed statemix/model)))
+  (is (= 2 (:nl statemix/model)))
+  (is (= [] (statemix/problems
+             (statemix/compression-request "input.wet" "input.ssm")))))
+
+(deftest model-and-seed-substitution-fail-closed
+  (let [request (statemix/compression-request "in" "out")]
+    (is (= :model-mismatch
+           (:problem (first (statemix/problems (assoc request :model "mamba-unknown"))))))
+    (is (= :seed-mismatch
+           (:problem (first (statemix/problems (assoc request :seed 42))))))))
+
+(deftest publishes-only-after-independent-byte-perfect-decode
+  (let [dir (.toFile (java.nio.file.Files/createTempDirectory
+                      "statemix-test-"
+                      (make-array java.nio.file.attribute.FileAttribute 0)))
+        input (java.io.File. dir "input.txt")
+        output (java.io.File. dir "verified.ssm")
+        binary (str repo-dir "/test/fixtures/statemix-reversible.sh")]
+    (spit input "lossless means every byte, not a plausible decode")
+    (let [result (statemix/benchmark!
+                  {:binary binary :cwd repo-dir
+                   :input-path (.getAbsolutePath input)
+                   :output-path (.getAbsolutePath output)})]
+      (is (true? (:roundtrip-verified? result)))
+      (is (true? (:published-after-verification? result)))
+      (is (= (slurp input) (slurp output))))))
+
+(deftest mismatch-never-publishes-a-stream
+  (let [dir (.toFile (java.nio.file.Files/createTempDirectory
+                      "statemix-corrupt-test-"
+                      (make-array java.nio.file.attribute.FileAttribute 0)))
+        input (java.io.File. dir "input.txt")
+        output (java.io.File. dir "must-not-exist.ssm")
+        binary (str repo-dir "/test/fixtures/statemix-corrupt.sh")]
+    (spit input "authoritative bytes")
+    (spit output "previous verified stream")
+    (is (thrown-with-msg? clojure.lang.ExceptionInfo #"round-trip mismatch"
+                          (statemix/benchmark!
+                           {:binary binary :cwd repo-dir
+                            :input-path (.getAbsolutePath input)
+                            :output-path (.getAbsolutePath output)})))
+    (is (= "previous verified stream" (slurp output)))))
