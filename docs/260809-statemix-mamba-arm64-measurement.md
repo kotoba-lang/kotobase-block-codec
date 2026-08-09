@@ -49,9 +49,10 @@ decoded the 2,031-byte stream to exactly 4,561 bytes. Both files had SHA-256
 Measured model-loop times in that verified run were 0.3 s compression and 0.6
 s decompression; container wall time was approximately 4.2 s and 5.3 s.
 
-The adapter now enforces both environment values, uses a private candidate
-file, invokes an independent decoder, compares every byte, and atomically
-publishes only after equality. Failed or timed-out runs publish nothing.
+The adapter now enforces both environment values, snapshots the input to avoid
+concurrent-write races, uses a private candidate file, invokes an independent
+decoder, compares every byte, and atomically publishes only after equality.
+Failed or timed-out runs publish nothing.
 
 The completed adapter itself was then run inside the amd64 container. It
 reported `input-bytes=4561`, `output-bytes=2031`, `bits-per-byte=3.5623767`,

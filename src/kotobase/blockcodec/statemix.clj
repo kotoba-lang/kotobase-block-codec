@@ -98,6 +98,9 @@
     (let [input-file (resolve-file cwd input-path)
           output-file (resolve-file cwd output-path)
           output-parent (or (.getParentFile output-file) (File. (str cwd)))
+          snapshot (Files/createTempFile (.toPath output-parent)
+                                         ".statemix-input-" ".bin"
+                                         (make-array java.nio.file.attribute.FileAttribute 0))
           candidate (Files/createTempFile (.toPath output-parent)
                                           ".statemix-candidate-" ".ssm"
                                           (make-array java.nio.file.attribute.FileAttribute 0))
@@ -110,13 +113,18 @@
         (when-not (and (.isFile input-file) (pos? (.length input-file)))
           (throw (ex-info "StateSMix input must be a non-empty file"
                           {:input-path (.getAbsolutePath input-file)})))
+        ;; Encode an immutable private snapshot so a concurrent writer cannot
+        ;; change the bytes between compression, verification, and hashing.
+        (Files/copy (.toPath input-file) snapshot
+                    (into-array StandardCopyOption
+                                [StandardCopyOption/REPLACE_EXISTING]))
         (let [compress-ms (invoke! (str binary)
-                                   ["c" (.getAbsolutePath input-file) (str candidate)]
+                                   ["c" (str snapshot) (str candidate)]
                                    cwd timeout-ms)
               decompress-ms (invoke! (str binary)
                                      ["d" (str candidate) (str recovered)]
                                      cwd timeout-ms)
-              input (Files/readAllBytes (.toPath input-file))
+              input (Files/readAllBytes snapshot)
               recovered-bytes (Files/readAllBytes recovered)
               output-bytes (Files/size candidate)
               input-bytes (alength input)]
@@ -143,5 +151,6 @@
            :roundtrip-verified? true
            :published-after-verification? true})
         (finally
+          (Files/deleteIfExists snapshot)
           (Files/deleteIfExists candidate)
           (Files/deleteIfExists recovered))))))

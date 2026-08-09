@@ -147,10 +147,10 @@ an independent decode and byte comparison before setting
 
 OpenMP is forcibly fixed to one thread for both processes. StateSMix retrains
 while decoding; parallel floating-point reduction order can otherwise make the
-reconstructed probability sequence diverge. `benchmark!` writes to a private
-candidate, runs an independent decoder, compares every byte, and only then
-atomically publishes the compressed stream. A failed decode or mismatch leaves
-no new output file.
+reconstructed probability sequence diverge. `benchmark!` first snapshots the
+input, writes to a private candidate, runs an independent decoder, compares
+every byte, and only then atomically publishes the compressed stream. A failed
+decode or mismatch leaves no new output file.
 
 It is deliberately **not** another tag in `core/frame`: upstream requires an
 external tokenizer and x86-64 AVX2/FMA/OpenMP, performs floating-point online
