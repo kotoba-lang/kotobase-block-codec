@@ -132,7 +132,7 @@ deployed before any writer emits an envelope**.
 ```sh
 clojure -M:test
 clojure -M:lint
-npm install   # @noble/hashes, for io-ipld's CID hashing under nbb
+npm install   # optional; cljs tests use nbb + classpath git deps (io-ipld via org-nist-sha2)
 nbb --classpath "src:test:../org-ietf-deflate/src:../io-ipld/src:../io-multiformats/src:../org-ietf-cbor/src" run-tests.cljs
 ```
 
