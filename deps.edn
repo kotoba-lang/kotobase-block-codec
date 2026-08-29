@@ -12,7 +12,7 @@
         ;; `kotobase.blockcodec.core` stays dependency-free of it.
         io.github.kotoba-lang/io-ipld
         {:git/url "https://github.com/kotoba-lang/io-ipld.git"
-         :git/sha "f99bf27d58a75bb8cf6ddfd2d57a0aaac9c824ac"}}
+         :git/sha "48ba40490cf082a1473986ac757b8e2b214a3d1b"}}
  :aliases
  {:test {:extra-paths ["test"]
          :extra-deps {io.github.cognitect-labs/test-runner

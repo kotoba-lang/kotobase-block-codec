@@ -4,7 +4,5 @@
   "scripts": {
     "test:cljs": "nbb --classpath \"$(clojure -Spath)\" run-tests.cljs"
   },
-  "dependencies": {
-    "@noble/hashes": "2.0.1"
-  }
+  "dependencies": {}
 }
