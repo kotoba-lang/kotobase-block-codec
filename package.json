@@ -2,7 +2,7 @@
   "name": "kotobase-block-codec",
   "private": true,
   "scripts": {
-    "test:cljs": "nbb --classpath \"$(clojure -Spath)\" run-tests.cljk"
+    "test:cljs": "kbb --backend sci --classpath \"$(kbb -Spath)\" run-tests.cljk"
   },
   "dependencies": {}
 }
