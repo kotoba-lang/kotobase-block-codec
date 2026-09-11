@@ -3,7 +3,7 @@
    by nbb.edn, so point the classpath at a sibling checkout — this is the
    multi-dir `--classpath` pattern the workspace already uses:
 
-     nbb --classpath \"src:test:../org-ietf-deflate/src\" run-tests.cljk
+     kbb --backend sci --classpath \"src:test:../org-ietf-deflate/src\" run-tests.cljk
 
    Running it on a second runtime is the point, not a formality: the frame's
    bytes go inside a CID, so `frame` producing something different here than
