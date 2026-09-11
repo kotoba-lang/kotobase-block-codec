@@ -133,7 +133,7 @@ deployed before any writer emits an envelope**.
 clojure -M:test
 clojure -M:lint
 npm install   # optional; cljs tests use nbb + classpath git deps (io-ipld via org-nist-sha2)
-nbb --classpath "src:test:../org-ietf-deflate/src:../io-ipld/src:../io-multiformats/src:../org-ietf-cbor/src" run-tests.cljs
+nbb --classpath "src:test:../org-ietf-deflate/src:../io-ipld/src:../io-multiformats/src:../org-ietf-cbor/src" run-tests.cljk
 ```
 
 ## StateSMix / Mamba research adapter
