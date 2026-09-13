@@ -11,7 +11,8 @@
   (:require [cljs.test :as t]
             [kotobase.blockcodec.core-test]
             [kotobase.blockcodec.golden-test]
-            [kotobase.blockcodec.node-test]))
+            [kotobase.blockcodec.node-test]
+            [kotobase.blockcodec.inflate-provider-test]))
 
 (defmethod t/report [:cljs.test/default :end-run-tests] [m]
   (println (str "\nnbb: " (:test m) " tests, " (:pass m) " passed, "
@@ -20,4 +21,4 @@
     (set! (.-exitCode js/process) 1)))
 
 (t/run-tests 'kotobase.blockcodec.core-test 'kotobase.blockcodec.golden-test
-             'kotobase.blockcodec.node-test)
+             'kotobase.blockcodec.node-test 'kotobase.blockcodec.inflate-provider-test)
