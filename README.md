@@ -180,3 +180,9 @@ one CID compared unequal while hashing equal (fixed upstream in `5d8de53`).
 
 All four are invisible to a round-trip test on a single runtime, which is the
 whole argument for pinning bytes and running both.
+
+## Qualified read-only inflation
+
+`install-inflate!` may install an adapter-provided synchronous RFC 1950 decoder. Installation checks exact decoded bytes across levels and rejects checksum damage and truncation before changing the active provider. Adapters must preserve the 128 MiB output limit. `nil` restores the portable decoder.
+
+This seam is read-only: `frame` always uses the pinned portable encoder and all golden writer bytes remain unchanged. A host compressor must never be installed here or substituted into the writer.
