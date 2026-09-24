@@ -1,5 +1,5 @@
 (ns kotobase.blockcodec.core-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [kotobase.blockcodec.core :as bc]
             [kotobase.blockcodec.fixtures :as fx]))
 

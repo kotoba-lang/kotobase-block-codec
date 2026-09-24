@@ -14,7 +14,7 @@
   to be annoying to change: a diff here is a statement that every block framed
   with `zlib-1` from now on has a different address than one framed before,
   and the correct way to make that statement is a new tag byte, not an edit."
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [kotobase.blockcodec.core :as bc]
             [kotobase.blockcodec.fixtures :as fx]))
 

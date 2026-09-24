@@ -4,7 +4,11 @@
  ;; codec, and the pin is load-bearing: this compressor's exact output bytes
  ;; are inside every CID it frames. `golden_test` fails if the pin moves in a
  ;; way that changes them.
- :deps {io.github.kotoba-lang/org-ietf-deflate
+ :deps {
+        ;; kotoba.test (clojure.test-compatible surface), not clojure.test --
+        ;; scripts/migrate-clojure-test-to-kotoba-test.cljk. Explicit floor.
+        io.github.kotoba-lang/test {:git/url "https://github.com/kotoba-lang/test.git"
+                                    :git/sha "2ab4885f99fd25552d380d0f6b0b54c5a72eb7ae"}io.github.kotoba-lang/org-ietf-deflate
         {:git/url "https://github.com/kotoba-lang/org-ietf-deflate.git"
          :git/sha "e7558036709b673e22673fc2bbd12f3a24144e98"}
         ;; `kotobase.blockcodec.node` only: the DAG-CBOR envelope that keeps a

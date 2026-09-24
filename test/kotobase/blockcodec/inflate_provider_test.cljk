@@ -1,5 +1,5 @@
 (ns kotobase.blockcodec.inflate-provider-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [kotoba.test :refer [deftest is]]
             [deflate.core :as d]
             [kotobase.blockcodec.core :as bc]
             [kotobase.blockcodec.golden-test :as golden]
