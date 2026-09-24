@@ -1,5 +1,5 @@
 (ns kotobase.blockcodec.statemix-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [kotoba.test :refer [deftest is]]
             [kotobase.blockcodec.statemix :as statemix]))
 
 (def repo-dir (System/getProperty "user.dir"))

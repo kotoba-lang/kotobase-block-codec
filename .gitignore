@@ -2,3 +2,4 @@ target/
 .cpcache/
 .nrepl-port
 node_modules/
+.nbb/
