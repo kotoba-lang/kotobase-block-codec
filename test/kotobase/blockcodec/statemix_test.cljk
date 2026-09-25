@@ -1,5 +1,5 @@
 (ns kotobase.blockcodec.statemix-test
-  (:require [kotoba.io :as kio] [kotoba.test :refer [deftest is]]
+  (:require [kotoba.lang.error :as kerror] [kotoba.io :as kio] [kotoba.test :refer [deftest is]]
             [kotobase.blockcodec.statemix :as statemix]))
 
 (def repo-dir (System/getProperty "user.dir"))
@@ -41,7 +41,7 @@
         binary (str repo-dir "/test/fixtures/statemix-corrupt.sh")]
     (spit input "authoritative bytes")
     (spit output "previous verified stream")
-    (is (thrown-with-msg? clojure.lang.ExceptionInfo #"round-trip mismatch"
+    (is (thrown-with-msg? kerror/ExceptionInfo #"round-trip mismatch"
                           (statemix/benchmark!
                            {:binary binary :cwd repo-dir
                             :input-path (kio/absolute-path input)
